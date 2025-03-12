@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power BI Report Analyzer</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <h1 class="text-2xl font-bold text-gray-900">Power BI Report Analyzer</h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <!-- File Upload Section -->
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <div class="max-w-xl mx-auto">
+                <div class="text-center mb-8">
+                    <i class="fas fa-file-upload text-4xl text-blue-500 mb-4"></i>
+                    <h2 class="text-xl font-semibold text-gray-900">Upload Power BI File</h2>
+                    <p class="mt-1 text-sm text-gray-500">Upload your .pbix file to analyze its contents</p>
+                </div>
+
+                <div class="mt-4">
+                    <div class="flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-md hover:border-blue-500 transition-colors duration-200 cursor-pointer" id="dropZone">
+                        <div class="space-y-1 text-center">
+                            <div class="text-sm text-gray-600">
+                                <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                    <span>Upload a file</span>
+                                    <input id="file-upload" name="file-upload" type="file" class="sr-only" accept=".pbix">
+                                </label>
+                                <p class="pl-1">or drag and drop</p>
+                            </div>
+                            <p class="text-xs text-gray-500">Power BI files (.pbix) up to 50MB</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Results Section -->
+        <div id="results" class="hidden">
+            <!-- Loading Spinner -->
+            <div id="loading" class="text-center py-12 hidden">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+                <p class="mt-2 text-sm text-gray-500">Analyzing your Power BI file...</p>
+            </div>
+
+            <!-- Results Tabs -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex" aria-label="Tabs">
+                        <button class="tab-button active w-1/4 py-4 px-1 text-center border-b-2 font-medium text-sm" data-tab="overview">
+                            <i class="fas fa-chart-pie mr-2"></i>Overview
+                        </button>
+                        <button class="tab-button w-1/4 py-4 px-1 text-center border-b-2 font-medium text-sm" data-tab="visuals">
+                            <i class="fas fa-chart-bar mr-2"></i>Visuals
+                        </button>
+                        <button class="tab-button w-1/4 py-4 px-1 text-center border-b-2 font-medium text-sm" data-tab="data">
+                            <i class="fas fa-database mr-2"></i>Data Model
+                        </button>
+                        <button class="tab-button w-1/4 py-4 px-1 text-center border-b-2 font-medium text-sm" data-tab="dependencies">
+                            <i class="fas fa-project-diagram mr-2"></i>Dependencies
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Tab Contents -->
+                <div class="p-6">
+                    <!-- Overview Tab -->
+                    <div id="overview-tab" class="tab-content">
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                <h3 class="text-lg font-medium text-blue-900">Report Pages</h3>
+                                <p class="mt-2 text-3xl font-semibold text-blue-600" id="pages-count">0</p>
+                            </div>
+                            <div class="bg-green-50 rounded-lg p-4">
+                                <h3 class="text-lg font-medium text-green-900">Total Visuals</h3>
+                                <p class="mt-2 text-3xl font-semibold text-green-600" id="visuals-count">0</p>
+                            </div>
+                            <div class="bg-purple-50 rounded-lg p-4">
+                                <h3 class="text-lg font-medium text-purple-900">Measures</h3>
+                                <p class="mt-2 text-3xl font-semibold text-purple-600" id="measures-count">0</p>
+                            </div>
+                            <div class="bg-orange-50 rounded-lg p-4">
+                                <h3 class="text-lg font-medium text-orange-900">Tables</h3>
+                                <p class="mt-2 text-3xl font-semibold text-orange-600" id="tables-count">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visuals Tab -->
+                    <div id="visuals-tab" class="tab-content hidden">
+                        <div id="visuals-content" class="space-y-6">
+                            <!-- Content will be dynamically populated -->
+                        </div>
+                    </div>
+
+                    <!-- Data Model Tab -->
+                    <div id="data-tab" class="tab-content hidden">
+                        <div id="data-model-content" class="space-y-6">
+                            <!-- Content will be dynamically populated -->
+                        </div>
+                    </div>
+
+                    <!-- Dependencies Tab -->
+                    <div id="dependencies-tab" class="tab-content hidden">
+                        <div id="dependencies-content" class="space-y-6">
+                            <!-- Content will be dynamically populated -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Error Toast -->
+    <div id="error-toast" class="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg hidden">
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span id="error-message"></span>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
